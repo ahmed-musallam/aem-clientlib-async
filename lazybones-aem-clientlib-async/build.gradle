@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        maven {
+            url "http://dl.bintray.com/pledbrook/plugins"
+        }
+    }
+
+    dependencies {
+        classpath "uk.co.cacoethes:lazybones-gradle:1.2.4"
+    }
+}
+
+apply plugin: "uk.co.cacoethes.lazybones-templates"
+
+lazybones {
+    repositoryName = "ahmed-musallam/lazybones"
+
+    if (project.hasProperty("bintrayUsername") && project.hasProperty("bintrayApiKey")) {
+        repositoryUsername = project.bintrayUsername
+        repositoryApiKey = project.bintrayApiKey
+    }
+
+    // These properties are required for Bintray open source hosting. Uncomment
+    // and substitute in your project's license and vcsUrl:
+
+    licenses = ["Apache-2.0"]
+    vcsUrl = "https://github.com/ahmed-musallam/aem-clientlib-async"
+}
