@@ -1,6 +1,8 @@
 # aem-async-clientlib
 
-So you want to use `async`, `defer`, `onload` and `crossorigin` with your clientlib, you may have come across Nate Yolles [aem-clientlib-async](https://github.com/nateyolles/aem-clientlib-async). This repo is heavily based on that, just with a different implementation. While Nate's code generates the HTML for the `script`s and `link`s from a string template, this use class with this code parses the HTML generated from `HtmlLibraryManager` and appends the attributes to the generated tags. This way we do not interfere with what `HtmlLibraryManager` generates, we just append the attributes we need to it. Read more in source for `lazybones-aem-templates/lazybones-aem-clientlib-async/templates/aem-clientlib-async/ClientLibUseObject.java`
+So you want to use `async`, `defer`, `onload` and `crossorigin` with your clientlib, you may have come across Nate Yolles [aem-clientlib-async](https://github.com/nateyolles/aem-clientlib-async). This repo is heavily based on that, just with a different implementation. While Nate's code generates the HTML for the `script`s and `link`s from a string template, the 'Use' class with this code parses the HTML generated from `HtmlLibraryManager` and appends the attributes to the generated tags. This way we do not interfere with what `HtmlLibraryManager` generates, we just append the attributes we need to it. Read more in source for `lazybones-aem-templates/lazybones-aem-clientlib-async/templates/aem-clientlib-async/ClientLibUseObject.java`
+
+> This implementation solves an issue with [aem-clientlib-async](https://github.com/nateyolles/aem-clientlib-async) where the hash for cache busting is not appended to the files name for JS/CSS.
 
 ## This repo contains two project:
 
