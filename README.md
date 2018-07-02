@@ -18,5 +18,7 @@ This is a lazybones template that allows you to generate the same project as `as
 1. install [lazybones](https://github.com/pledbrook/lazybones)
 2. create a new `aem-async-clientlib` lazybones project:
 
-    - execute `lazybones create http://dl.bintray.com/ahmed-musallam/lazybones/aem-clientlib-async-template-1.0.0.zip clientlib-async`
+    - In a temporary directory, execute `lazybones create http://dl.bintray.com/ahmed-musallam/lazybones/aem-clientlib-async-template-1.0.0.zip clientlib-async`
     - Enter the desired path within your project
+    - Move the generated `clientlib-async` folder to your project under that path you specified
+    - Read the generated project's README.md for directions on how to use.
