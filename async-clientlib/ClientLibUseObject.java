@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.script.Bindings;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -22,6 +20,7 @@ import org.apache.sling.api.resource.Resource;
 
 import com.adobe.granite.ui.clientlibs.HtmlLibraryManager;
 import com.adobe.granite.ui.clientlibs.LibraryType;
+import org.apache.sling.commons.html.HtmlParser;
 
 import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
@@ -96,6 +95,7 @@ public class ClientLibUseObject implements Use {
     }};
 
     private HtmlLibraryManager htmlLibraryManager = null;
+    private HtmlParser htmlParser = null;
     private String[] categories;
     private String mode;
     private String loadingAttribute;
@@ -127,6 +127,7 @@ public class ClientLibUseObject implements Use {
             log = (Logger) bindings.get(SlingBindings.LOG);
             SlingScriptHelper sling = (SlingScriptHelper) bindings.get(SlingBindings.SLING);
             htmlLibraryManager = sling.getService(HtmlLibraryManager.class);
+            htmlParser = sling.getService(HtmlParser.class);
             xssAPI = sling.getService(XSSAPI.class);
         }
     }
@@ -147,13 +148,9 @@ public class ClientLibUseObject implements Use {
             StringWriter sw = new StringWriter(); // create writer
             writeIncludes(sw); // write JS/CSS includes to writer
 
-            // create an input stream from a well-formatter XML document.
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setValidating(false);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            ByteArrayInputStream in = new ByteArrayInputStream(getValidXMLDocumentString(sw.toString()).getBytes());
-            Document doc = db.parse(in);
-
+            ByteArrayInputStream in = new ByteArrayInputStream(sw.toString().getBytes());
+            Document doc = htmlParser.parse(null, in, "UTF-8");
+            in.close();
 
             Map<String, String> otherAttributes = getOtherAttributes();
             Map<String, String> jsAttributes = getJSAttributes();
@@ -163,14 +160,13 @@ public class ClientLibUseObject implements Use {
             setAttributes(doc.getElementsByTagName("script"), jsAttributes);
             setAttributes(doc.getElementsByTagName("link"), otherAttributes);
 
-            return nodeListToString(doc.getDocumentElement().getChildNodes());
+            StringBuilder finalOutput = new StringBuilder();
+            finalOutput.append(nodeListToString(doc.getElementsByTagName("script")));
+            finalOutput.append(nodeListToString(doc.getElementsByTagName("link")));
+            return finalOutput.toString();
 
-        } catch (ParserConfigurationException e) {
-            log.error("Error creating a new document builder", e);
         } catch (IOException e) {
             log.error("Error while parsing XML from InputStream", e);
-        } catch (SAXException e) {
-            log.error("Error while parsing XML", e);
         }
         // return an error comment to show the issue immediately
         return "<!-- could not include CSS/JS for categories: $libs -->".replace("$libs", StringUtils.join(categories, ", "));
@@ -220,18 +216,6 @@ public class ClientLibUseObject implements Use {
                 e.setAttribute(entry.getKey(), entry.getValue());
             }
         }
-    }
-
-
-    /**
-     * Surrounds an XML fragment with an XML declaration and root node.
-     * Essentially to create a "well-formatted" XML document
-     *
-     * @param XMLFragmentString An XML partial
-     * @return A "well-formatted" XML document
-     */
-    private String getValidXMLDocumentString(String XMLFragmentString ){
-        return "<?xml version=\"1.0\" ?><root>$content</root>".replace("$content", XMLFragmentString);
     }
 
     /**
